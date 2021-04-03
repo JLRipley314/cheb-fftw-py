@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <fftw3.h>
 /*
- * global variables
+ * static global variables
  */
 static size_t n_;
 
@@ -79,6 +79,13 @@ void cleanup()
    fftw_destroy_plan(plan_dct_);
    fftw_cleanup();
 }
+/*==========================================================================*/
+/* Functions for returning static variables */
+/*==========================================================================*/
+size_t n() { return n_; }
+double lower() { return lower_; }
+double upper() { return upper_; }
+double pt(const size_t i) { return pts_[i]; }
 /*==========================================================================*/
 /* position space to Chebyshev space */
 /*==========================================================================*/
@@ -161,9 +168,4 @@ void filter(double *v)
    } 
    to_po(internal_ch_,v);
 }
-/*==========================================================================*/
-size_t n() { return n_; }
-double lower() { return lower_; }
-double upper() { return upper_; }
-double pt(const size_t i) { return pts_[i]; }
 /*==========================================================================*/
