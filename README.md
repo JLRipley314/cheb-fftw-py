@@ -5,5 +5,5 @@ an interval [lower,upper].
 
 ## Prerequisites:
 
-* Python3 (numpy, etc) 
+* Python3 (ctypes, numpy, etc) 
 * FFTW3
