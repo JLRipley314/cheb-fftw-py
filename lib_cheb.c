@@ -20,9 +20,6 @@ static double *pts_; /* Chebyshev collocation
 
 static double *low_pass_; /* For low pass filter in Chebyshev space. */
 
-static double *internal_ch_; /* Stand-in for chebyshev coefficients 
-                                and position space for some routines. */
-
 static fftw_plan plan_dct_; /* For fftw Fourier transform. */
 /*==========================================================================*/
 /* setup fftw and vectors */
@@ -36,7 +33,6 @@ void init(const size_t n, const double lower, const double upper)
 
    pts_         = (double *)fftw_malloc(n_*sizeof(double));
    low_pass_    = (double *)fftw_malloc(n_*sizeof(double));
-   internal_ch_ = (double *)fftw_malloc(n_*sizeof(double));
    /* 
     * Chebyshev points on interval [lower, upper]
     */
@@ -69,11 +65,9 @@ void cleanup()
 {
    assert(pts_        !=NULL);
    assert(low_pass_   !=NULL);
-   assert(internal_ch_!=NULL);
 
    fftw_free(pts_);
    fftw_free(low_pass_);
-   fftw_free(internal_ch_);
 
    assert(plan_dct_!=NULL);
    fftw_destroy_plan(plan_dct_);
@@ -127,33 +121,36 @@ void der(double *v, double *dv)
 {
    assert(v!=NULL);
    assert(dv!=NULL);
+   double *ch = (double *)fftw_malloc(n_*sizeof(double));
+   assert(ch!=NULL);
 
-   to_ch(v,internal_ch_);
+   to_ch(v,ch);
    /*
     * to start Chebyshev derivative recurrence relation 
     */
-   internal_ch_[n_-1] = 0;
-   internal_ch_[n_-2] = 0;
+   ch[n_-1] = 0;
+   ch[n_-2] = 0;
    /* 
     * use dv as a temporary array
     */
    for (size_t i=0; i<n_; i++) {
-      dv[i] = internal_ch_[i];
+      dv[i] = ch[i];
    }
    /* 
     * apply Chebyshev derivative recurrence relation 
     */
    for (size_t i=n_-2; i>=1; i--) { 
-      internal_ch_[i-1] = 2.0*i*dv[i] + internal_ch_[i+1];
+      ch[i-1] = 2.0*i*dv[i] + ch[i+1];
    } 
-   internal_ch_[0] /= 2.0;
+   ch[0] /= 2.0;
    /* 
     * Normalize derivative to inverval 
     */
-   to_po(internal_ch_,dv);
+   to_po(ch,dv);
    for (size_t i=0; i<n_; i++) {
       dv[i] /= jacobian_;
    }
+   fftw_free(ch);
 }
 /*==========================================================================*/
 /* Low pass filter of Chebyshev coefficients */
@@ -161,11 +158,15 @@ void der(double *v, double *dv)
 void filter(double *v)
 {
    assert(v!=NULL);
+   double *ch = (double *)fftw_malloc(n_*sizeof(double));
+   assert(ch!=NULL);
 
-   to_ch(v,internal_ch_);
+   to_ch(v,ch);
    for (size_t i=0; i<n_; i++) { 
-      internal_ch_[i] *= low_pass_[i];
+      ch[i] *= low_pass_[i];
    } 
-   to_po(internal_ch_,v);
+   to_po(ch,v);
+
+   fftw_free(ch);
 }
 /*==========================================================================*/
