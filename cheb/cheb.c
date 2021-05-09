@@ -61,7 +61,7 @@ void init(const size_t n, const double lower, const double upper)
    fftw_free(out_);
 }
 /*==========================================================================*/
-void cleanup()
+void cleanup(void)
 {
    assert(pts_        !=NULL);
    assert(low_pass_   !=NULL);
@@ -76,9 +76,9 @@ void cleanup()
 /*==========================================================================*/
 /* Functions for returning static variables */
 /*==========================================================================*/
-size_t n() { return n_; }
-double lower() { return lower_; }
-double upper() { return upper_; }
+size_t n(void) { return n_; }
+double lower(void) { return lower_; }
+double upper(void) { return upper_; }
 double pt(const size_t i) { return pts_[i]; }
 /*==========================================================================*/
 /* position space to Chebyshev space */

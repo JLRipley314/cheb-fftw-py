@@ -4,8 +4,8 @@
 Simple routines to test cheb module.
 """
 
-import cheb
 import numpy as np
+import cheb.cheb as cheb
 
 def norm(arr):
    return sum(abs(arr))/len(arr)
